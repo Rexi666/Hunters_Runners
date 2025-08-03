@@ -1,5 +1,7 @@
 package org.rexi.hunters_Runners.commands;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -19,6 +21,8 @@ public class ResetHuntersCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!sender.hasPermission("hunters.admin")) return false;
+
         plugin.started = false;
         plugin.hunters.clear();
         plugin.runners.clear();
@@ -39,6 +43,8 @@ public class ResetHuntersCommand implements CommandExecutor {
             Location lobby = plugin.getGameLobby();
             if (lobby != null) player.teleport(lobby);
         }
+
+        sender.sendMessage(Component.text("Juego reiniciado").color(NamedTextColor.GREEN));
         return true;
     }
 }

@@ -1,6 +1,7 @@
 package org.rexi.hunters_Runners;
 
 import org.bukkit.*;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -19,8 +20,12 @@ public final class Hunters_Runners extends JavaPlugin {
     public List<String> runners = new ArrayList<>();
     public int runnersCount = 0;
     public boolean huntersReleased = false;
+
     public BukkitTask gameEndTask = null;
     public BukkitTask hunterReleaseTask = null;
+
+    public BossBar hideBossBar;
+    public BossBar gameBossBar;
 
     @Override
     public void onEnable() {
@@ -81,6 +86,8 @@ public final class Hunters_Runners extends JavaPlugin {
             getServer().broadcastMessage(ChatColor.GREEN + "Han ganado los cazadores!");
 
             for (Player player : Bukkit.getOnlinePlayers()) {
+                player.sendTitle("&aHan ganado los cazadores", "", 10, 40,10);
+                player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_DEATH, 1f, 1f);
                 if (hunters.contains(player.getName())) {
                     Bukkit.broadcastMessage(ChatColor.AQUA + "▶ " + player.getName());
                 }
@@ -88,6 +95,8 @@ public final class Hunters_Runners extends JavaPlugin {
         } else if (winner.equalsIgnoreCase("runners")) {
             getServer().broadcastMessage(ChatColor.GREEN + "Han ganado los corredores!");
             for (Player player : Bukkit.getOnlinePlayers()) {
+                player.sendTitle("&aHan ganado los corredores", "", 10, 40,10);
+                player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_DEATH, 1f, 1f);
                 if (runners.contains(player.getName())) {
                     Bukkit.broadcastMessage(ChatColor.AQUA + "▶ " + player.getName());
                 }
