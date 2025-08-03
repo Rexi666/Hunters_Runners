@@ -38,6 +38,15 @@ public class ResetHuntersCommand implements CommandExecutor {
             plugin.gameEndTask = null;
         }
 
+        if (plugin.gameBossBar != null) {
+            plugin.gameBossBar.removeAll();
+            plugin.gameBossBar = null;
+        }
+        if (plugin.hideBossBar != null) {
+            plugin.hideBossBar.removeAll();
+            plugin.hideBossBar = null;
+        }
+
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setGameMode(GameMode.SURVIVAL);
             Location lobby = plugin.getGameLobby();

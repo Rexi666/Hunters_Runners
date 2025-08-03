@@ -86,8 +86,7 @@ public final class Hunters_Runners extends JavaPlugin {
             getServer().broadcastMessage(ChatColor.GREEN + "Han ganado los cazadores!");
 
             for (Player player : Bukkit.getOnlinePlayers()) {
-                player.sendTitle("&aHan ganado los cazadores", "", 10, 40,10);
-                player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_DEATH, 1f, 1f);
+                player.sendTitle(ChatColor.translateAlternateColorCodes('&', "&aHan ganado los cazadores"), "", 10, 40,10);
                 if (hunters.contains(player.getName())) {
                     Bukkit.broadcastMessage(ChatColor.AQUA + "▶ " + player.getName());
                 }
@@ -95,8 +94,7 @@ public final class Hunters_Runners extends JavaPlugin {
         } else if (winner.equalsIgnoreCase("runners")) {
             getServer().broadcastMessage(ChatColor.GREEN + "Han ganado los corredores!");
             for (Player player : Bukkit.getOnlinePlayers()) {
-                player.sendTitle("&aHan ganado los corredores", "", 10, 40,10);
-                player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_DEATH, 1f, 1f);
+                player.sendTitle(ChatColor.translateAlternateColorCodes('&', "&aHan ganado los corredores"), "", 10, 40,10);
                 if (runners.contains(player.getName())) {
                     Bukkit.broadcastMessage(ChatColor.AQUA + "▶ " + player.getName());
                 }
@@ -113,6 +111,7 @@ public final class Hunters_Runners extends JavaPlugin {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 player.teleport(lobby);
                 player.setGameMode(GameMode.SURVIVAL);
+                player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_DEATH, 1f, 1f);
             }
         }
 
@@ -127,6 +126,15 @@ public final class Hunters_Runners extends JavaPlugin {
         if (gameEndTask != null) {
             gameEndTask.cancel();
             gameEndTask = null;
+        }
+
+        if (gameBossBar != null) {
+            gameBossBar.removeAll();
+            gameBossBar = null;
+        }
+        if (hideBossBar != null) {
+            hideBossBar.removeAll();
+            hideBossBar = null;
         }
     }
 }

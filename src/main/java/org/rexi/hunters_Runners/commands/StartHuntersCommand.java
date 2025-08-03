@@ -3,6 +3,7 @@ package org.rexi.hunters_Runners.commands;
 import org.bukkit.*;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,7 +17,7 @@ import java.util.List;
 
 public class StartHuntersCommand implements CommandExecutor {
 
-    private final Hunters_Runners  plugin;
+    private final Hunters_Runners plugin;
 
     public StartHuntersCommand(Hunters_Runners plugin) {
         this.plugin = plugin;
@@ -42,32 +43,30 @@ public class StartHuntersCommand implements CommandExecutor {
         }
 
         int HuntersCount = plugin.getConfig().getInt("game.hunters", 3);
-        if (posiblesHunters.size() < HuntersCount+1) {
-            sender.sendMessage(ChatColor.RED + "Se necesitan al menos "+ HuntersCount+1 +" jugadores sin permiso de admin para comenzar.");
+        if (posiblesHunters.size() < HuntersCount + 1) {
+            sender.sendMessage(ChatColor.RED + "Se necesitan al menos " + (HuntersCount + 1) + " jugadores sin permiso de admin para comenzar.");
             return true;
         }
 
         Collections.shuffle(posiblesHunters);
         List<Player> huntersSeleccionados = posiblesHunters.subList(0, HuntersCount);
 
-        plugin.hunters.clear(); // Limpiamos la lista de cazadores
-        // Anunciamos los cazadores
+        plugin.hunters.clear();
         Bukkit.broadcastMessage(ChatColor.GOLD + "¡Los cazadores han sido elegidos!");
         for (Player hunter : huntersSeleccionados) {
             Bukkit.broadcastMessage(ChatColor.RED + "▶ " + hunter.getName());
-            plugin.hunters.add(hunter.getName()); // Guardamos el nombre del cazador
+            plugin.hunters.add(hunter.getName());
         }
 
         int countdown = plugin.getConfig().getInt("game.countdown", 5);
-        plugin.started = true; // Marcamos que el juego ha comenzado
+        plugin.started = true;
 
         Bukkit.broadcastMessage(ChatColor.GREEN + "¡El juego comenzará en " + countdown + " segundos!");
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
-            player.sendTitle("&aLos cazadores han sido elegidos", "&6¡El juego comenzará en " + countdown + " segundos!", 10, 40,10);
+            player.sendTitle(ChatColor.translateAlternateColorCodes('&', "&aLos cazadores han sido elegidos"), "&6¡El juego comenzará en " + countdown + " segundos!", 10, 40, 10);
         }
-
 
         Location spawn = plugin.getGameSpawn();
         if (spawn == null) {
@@ -94,10 +93,10 @@ public class StartHuntersCommand implements CommandExecutor {
                     cancel();
 
                     int hideTime = plugin.getConfig().getInt("game.hide_time", 30);
-                    // Teleportar SOLO a los runners
+
                     plugin.runnersCount = 0;
                     for (Player p : Bukkit.getOnlinePlayers()) {
-                        p.sendTitle("&aCorredores teletransportados", "&6Tienen "+ hideTime + " segundos para esconderse", 10, 40,10);
+                        p.sendTitle(ChatColor.translateAlternateColorCodes('&', "&aCorredores teletransportados"), "&6Tienen " + hideTime + " segundos para esconderse", 10, 40, 10);
                         p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
 
                         if (!plugin.hunters.contains(p.getName()) && !p.hasPermission("hunters.admin")) {
@@ -110,62 +109,82 @@ public class StartHuntersCommand implements CommandExecutor {
 
                     Bukkit.broadcastMessage(ChatColor.YELLOW + "¡Los corredores han sido teletransportados! Tienen " + hideTime + " segundos para esconderse...");
 
-                    plugin.hideBossBar = Bukkit.createBossBar(
-                            ChatColor.YELLOW + "Tiempo para esconderse...",
-                            BarColor.YELLOW,
-                            BarStyle.SOLID
-                    );
-                    plugin.hideBossBar.setVisible(true);
+                    plugin.hideBossBar = Bukkit.createBossBar("¡Escóndete!", BarColor.YELLOW, BarStyle.SOLID);
+                    for (Player p : Bukkit.getOnlinePlayers()) plugin.hideBossBar.addPlayer(p);
 
-                    // Añadir a todos los jugadores
-                    for (Player p : Bukkit.getOnlinePlayers()) {
-                        plugin.hideBossBar.addPlayer(p);
-                    }
+                    new BukkitRunnable() {
+                        int hideTimeLeft = hideTime;
 
-                    // Esperar x segundos y teletransportar a los cazadores
-                    plugin.hunterReleaseTask = new BukkitRunnable() {
                         @Override
                         public void run() {
-                            plugin.huntersReleased = true;
+                            if (hideTimeLeft <= 0) {
+                                plugin.hideBossBar.removeAll();
+                                cancel();
 
-                            Bukkit.broadcastMessage(ChatColor.RED + "¡Los cazadores han sido liberados!");
+                                plugin.huntersReleased = true;
+                                Bukkit.broadcastMessage(ChatColor.RED + "¡Los cazadores han sido liberados!");
 
-                            if (gameTime >= 60) {
-                                Bukkit.broadcastMessage(ChatColor.GREEN + "¡El juego durará " + (gameTime / 60) + " minutos!");
-                            } else {
-                                Bukkit.broadcastMessage(ChatColor.GREEN + "¡El juego durará " + gameTime + " segundos!");
-                            }
-
-                            for (Player p : Bukkit.getOnlinePlayers()) {
-                                p.sendTitle("&cCazadores liberados", "&6Tienen "+ gameTime + " segundos para encontrar a los corredores", 10, 40,10);
-                                p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
-                                if (plugin.hunters.contains(p.getName())) {
-                                    p.teleport(spawn);
-                                    p.setGameMode(GameMode.SURVIVAL);
+                                if (gameTime >= 60) {
+                                    Bukkit.broadcastMessage(ChatColor.GREEN + "¡El juego durará " + (gameTime / 60) + " minutos!");
+                                } else {
+                                    Bukkit.broadcastMessage(ChatColor.GREEN + "¡El juego durará " + gameTime + " segundos!");
                                 }
-                            }
 
-                            // Temporizador del fin de la partida
-                            plugin.gameEndTask = new BukkitRunnable() {
-                                @Override
-                                public void run() {
-                                    if (plugin.started) {
-                                        Bukkit.broadcastMessage(ChatColor.AQUA + "¡El tiempo se ha acabado!");
-                                        plugin.endGame("runners");
+                                for (Player p : Bukkit.getOnlinePlayers()) {
+                                    p.sendTitle(ChatColor.translateAlternateColorCodes('&', "&cCazadores liberados"), "&6Tienen " + gameTime + " segundos para encontrar a los corredores", 10, 40, 10);
+                                    p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+                                    if (plugin.hunters.contains(p.getName())) {
+                                        p.teleport(spawn);
+                                        p.setGameMode(GameMode.SURVIVAL);
                                     }
                                 }
-                            }.runTaskLater(plugin, gameTime * 20L);
+
+                                plugin.gameBossBar = Bukkit.createBossBar("¡Encuentra a los corredores!", BarColor.RED, BarStyle.SOLID);
+                                for (Player p : Bukkit.getOnlinePlayers()) plugin.gameBossBar.addPlayer(p);
+
+                                new BukkitRunnable() {
+                                    int gameTimeLeft = gameTime;
+
+                                    @Override
+                                    public void run() {
+                                        if (!plugin.started || gameTimeLeft <= 0) {
+                                            plugin.gameBossBar.removeAll();
+                                            cancel();
+                                            Bukkit.broadcastMessage(ChatColor.AQUA + "¡El tiempo se ha acabado!");
+                                            plugin.endGame("runners");
+                                            return;
+                                        }
+
+                                        double progress = (double) gameTimeLeft / gameTime;
+                                        plugin.gameBossBar.setProgress(Math.max(0.0, Math.min(1.0, progress)));
+                                        if (gameTimeLeft > 60) {
+                                            int minutes = gameTimeLeft / 60;
+                                            int seconds = gameTimeLeft % 60;
+                                            plugin.gameBossBar.setTitle(ChatColor.RED + "Tiempo restante: " + minutes + "m " + seconds + "s");
+                                        } else {
+                                            plugin.gameBossBar.setTitle(ChatColor.RED + "Tiempo restante: " + gameTimeLeft + "s");
+                                        }
+                                        gameTimeLeft--;
+                                    }
+                                }.runTaskTimer(plugin, 0L, 20L);
+
+                            } else {
+                                double progress = (double) hideTimeLeft / hideTime;
+                                plugin.hideBossBar.setProgress(Math.max(0.0, Math.min(1.0, progress)));
+                                plugin.hideBossBar.setTitle(ChatColor.YELLOW + "Tiempo para esconderse: " + hideTimeLeft + "s");
+                                hideTimeLeft--;
+                            }
                         }
-                    }.runTaskLater(plugin, hideTime * 20L); // segundos
+                    }.runTaskTimer(plugin, 0L, 20L);
 
                 } else {
                     if (timeLeft <= 5 || timeLeft % 10 == 0)
                         for (Player p : Bukkit.getOnlinePlayers()) {
-                            p.sendTitle("&7"+timeLeft, "", 0, 20,0);
+                            p.sendTitle("&7" + timeLeft, "", 0, 20, 0);
                             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
                         }
 
-                        Bukkit.broadcastMessage(ChatColor.GRAY + "Comienza en " + timeLeft + "...");
+                    Bukkit.broadcastMessage(ChatColor.GRAY + "Comienza en " + timeLeft + "...");
                     timeLeft--;
                 }
             }
