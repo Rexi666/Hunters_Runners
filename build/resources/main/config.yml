@@ -1,0 +1,7 @@
+game:
+  lobby: spawn;0,100,0;0;0 # Coordenadas del lobby
+  game_spawn: map;0;0;0;0;0 # Coordenadas de inicio del juego
+  countdown: 5 # Segundos antes de comenzar la partida
+  hunters: 3 # Número de cazadores
+  hide_time: 30 # Tiempo en segundos para que los corredores se escondan
+  game_time: 300 # Tiempo en segundos para que los cazadores atrapen a los corredores

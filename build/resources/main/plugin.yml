@@ -1,0 +1,15 @@
+name: Hunters_Runners
+version: '1.0'
+main: org.rexi.hunters_Runners.Hunters_Runners
+api-version: '1.21'
+author: Rexi666
+commands:
+  starthunters:
+    description: Comienza la partida de Hunters vs Runners
+    usage: /starthunters
+  hunters:
+    description: Comando principal de Hunters vs Runners
+    usage: /hunters <reload>
+  resethunters:
+    description: Resetea la partida
+    usage: /resethunters
