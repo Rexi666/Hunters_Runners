@@ -65,7 +65,7 @@ public class StartHuntersCommand implements CommandExecutor {
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
-            player.sendTitle(ChatColor.translateAlternateColorCodes('&', "&aLos cazadores han sido elegidos"), "&6¡El juego comenzará en " + countdown + " segundos!", 10, 40, 10);
+            player.sendTitle(ChatColor.translateAlternateColorCodes('&', "&aLos cazadores han sido elegidos"), ChatColor.translateAlternateColorCodes('&', "&6¡El juego comenzará en " + countdown + " segundos!"), 10, 40, 10);
         }
 
         Location spawn = plugin.getGameSpawn();
@@ -96,7 +96,7 @@ public class StartHuntersCommand implements CommandExecutor {
 
                     plugin.runnersCount = 0;
                     for (Player p : Bukkit.getOnlinePlayers()) {
-                        p.sendTitle(ChatColor.translateAlternateColorCodes('&', "&aCorredores teletransportados"), "&6Tienen " + hideTime + " segundos para esconderse", 10, 40, 10);
+                        p.sendTitle(ChatColor.translateAlternateColorCodes('&', "&aCorredores teletransportados"), ChatColor.translateAlternateColorCodes('&', "&6Tienen " + hideTime + " segundos para esconderse"), 10, 40, 10);
                         p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
 
                         if (!plugin.hunters.contains(p.getName()) && !p.hasPermission("hunters.admin")) {
@@ -131,7 +131,7 @@ public class StartHuntersCommand implements CommandExecutor {
                                 }
 
                                 for (Player p : Bukkit.getOnlinePlayers()) {
-                                    p.sendTitle(ChatColor.translateAlternateColorCodes('&', "&cCazadores liberados"), "&6Tienen " + gameTime + " segundos para encontrar a los corredores", 10, 40, 10);
+                                    p.sendTitle(ChatColor.translateAlternateColorCodes('&', "&cCazadores liberados"), ChatColor.translateAlternateColorCodes('&', "&6Tienen " + gameTime/60 + " minutos para encontrar a los corredores"), 10, 40, 10);
                                     p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
                                     if (plugin.hunters.contains(p.getName())) {
                                         p.teleport(spawn);
@@ -148,7 +148,10 @@ public class StartHuntersCommand implements CommandExecutor {
                                     @Override
                                     public void run() {
                                         if (!plugin.started || gameTimeLeft <= 0) {
-                                            plugin.gameBossBar.removeAll();
+                                            if (plugin.gameBossBar != null) {
+                                                plugin.gameBossBar.removeAll();
+                                                plugin.gameBossBar = null;
+                                            }
                                             cancel();
                                             Bukkit.broadcastMessage(ChatColor.AQUA + "¡El tiempo se ha acabado!");
                                             plugin.endGame("runners");
@@ -180,7 +183,7 @@ public class StartHuntersCommand implements CommandExecutor {
                 } else {
                     if (timeLeft <= 5 || timeLeft % 10 == 0)
                         for (Player p : Bukkit.getOnlinePlayers()) {
-                            p.sendTitle("&7" + timeLeft, "", 0, 20, 0);
+                            p.sendTitle(ChatColor.translateAlternateColorCodes('&', "&7" + timeLeft), "", 0, 20, 0);
                             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
                         }
 

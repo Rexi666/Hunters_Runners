@@ -82,6 +82,7 @@ public final class Hunters_Runners extends JavaPlugin {
     }
 
     public void endGame(String winner) {
+        if (!started) return;
         if (winner.equalsIgnoreCase("hunters")) {
             getServer().broadcastMessage(ChatColor.GREEN + "Han ganado los cazadores!");
 
