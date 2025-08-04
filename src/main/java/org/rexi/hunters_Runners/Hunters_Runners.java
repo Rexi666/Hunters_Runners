@@ -137,5 +137,13 @@ public final class Hunters_Runners extends JavaPlugin {
             hideBossBar.removeAll();
             hideBossBar = null;
         }
+        runServerCommand("svar reset hunters *");
+    }
+
+    public void runServerCommand(String command) {
+        Server server = getServer();
+        server.getScheduler().runTask(this, () -> {
+            server.dispatchCommand(server.getConsoleSender(), command);
+        });
     }
 }

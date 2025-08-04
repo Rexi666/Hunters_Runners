@@ -52,10 +52,12 @@ public class StartHuntersCommand implements CommandExecutor {
         List<Player> huntersSeleccionados = posiblesHunters.subList(0, HuntersCount);
 
         plugin.hunters.clear();
+        plugin.runServerCommand("svar reset hunters *");
         Bukkit.broadcastMessage(ChatColor.GOLD + "¡Los cazadores han sido elegidos!");
         for (Player hunter : huntersSeleccionados) {
             Bukkit.broadcastMessage(ChatColor.RED + "▶ " + hunter.getName());
             plugin.hunters.add(hunter.getName());
+            plugin.runServerCommand("svar set hunters &c "+hunter.getName());
         }
 
         int countdown = plugin.getConfig().getInt("game.countdown", 5);
@@ -104,6 +106,7 @@ public class StartHuntersCommand implements CommandExecutor {
                             plugin.runnersCount++;
                             plugin.runners.add(p.getName());
                             p.setGameMode(GameMode.SURVIVAL);
+                            plugin.runServerCommand("svar set hunters &b "+p.getName());
                         }
                     }
 
