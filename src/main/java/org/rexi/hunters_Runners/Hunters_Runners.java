@@ -138,6 +138,7 @@ public final class Hunters_Runners extends JavaPlugin {
             hideBossBar = null;
         }
         runServerCommand("svar reset hunters *");
+        runServerCommand("eglow set * off");
     }
 
     public void runServerCommand(String command) {
