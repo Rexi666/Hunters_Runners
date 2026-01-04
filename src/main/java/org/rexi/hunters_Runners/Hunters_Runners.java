@@ -10,8 +10,7 @@ import org.rexi.hunters_Runners.commands.ResetHuntersCommand;
 import org.rexi.hunters_Runners.commands.StartHuntersCommand;
 import org.rexi.hunters_Runners.listeners.GameListener;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public final class Hunters_Runners extends JavaPlugin {
 
@@ -27,6 +26,10 @@ public final class Hunters_Runners extends JavaPlugin {
     public BossBar hideBossBar;
     public BossBar gameBossBar;
 
+    public final Map<UUID, Long> lastMove = new HashMap<>();
+    public final Set<UUID> glowing = new HashSet<>();
+    public static final long QUIET_TIME_MS = 3000; // 3 segundos
+
     @Override
     public void onEnable() {
         saveDefaultConfig(); // Carga config.yml si no existe
@@ -36,6 +39,28 @@ public final class Hunters_Runners extends JavaPlugin {
         getCommand("resethunters").setExecutor(new ResetHuntersCommand(this));
 
         getServer().getPluginManager().registerEvents(new GameListener(this), this);
+
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            if (!started || !huntersReleased) return;
+
+            long now = System.currentTimeMillis();
+
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                String name = player.getName();
+                UUID uuid = player.getUniqueId();
+
+                if (!runners.contains(name)) continue;
+
+                long last = lastMove.getOrDefault(uuid, now);
+
+                if (now - last >= QUIET_TIME_MS) {
+                    if (!glowing.contains(uuid)) {
+                        runServerCommand("eglow set " + name + " aqua");
+                        glowing.add(uuid);
+                    }
+                }
+            }
+        }, 20L, 20L);
     }
 
     @Override
@@ -139,6 +164,9 @@ public final class Hunters_Runners extends JavaPlugin {
         }
         runServerCommand("svar reset hunters *");
         runServerCommand("eglow set * off");
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            runServerCommand("tab nametag show "+ player.getName() +" -s");
+        }
     }
 
     public void runServerCommand(String command) {

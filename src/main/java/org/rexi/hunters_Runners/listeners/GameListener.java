@@ -10,8 +10,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.rexi.hunters_Runners.Hunters_Runners;
+
+import java.util.*;
 
 public class GameListener implements Listener {
 
@@ -66,6 +70,8 @@ public class GameListener implements Listener {
 
         plugin.getServer().broadcastMessage(ChatColor.RED + "¡" + victim.getName() + " fue cazado por " + attacker.getName() + "!");
 
+        plugin.runServerCommand("tab nametag show "+ victim.getName() +" -s");
+
         if (plugin.runnersCount != 0) {
             plugin.getServer().broadcastMessage(ChatColor.AQUA + "Quedan " + plugin.runnersCount + " corredores.");
         } else {
@@ -107,5 +113,48 @@ public class GameListener implements Listener {
         }
         player.teleport(spawn);
         player.setGameMode(GameMode.SPECTATOR);
+    }
+
+    @EventHandler
+    public void onShift(PlayerToggleSneakEvent event) {
+        if (!plugin.started) return;
+        if (!plugin.huntersReleased) return;
+
+        Player player = event.getPlayer();
+        String name = player.getName();
+
+        if (plugin.runners.contains(name)) {
+            if (event.isSneaking()) {
+                plugin.runServerCommand("eglow set " +name+ " aqua");
+            } else {
+                plugin.runServerCommand("eglow set " +name+ " off");
+            }
+        }
+    }
+
+    @EventHandler
+    public void onMove(PlayerMoveEvent event) {
+        if (!plugin.started) return;
+        if (!plugin.huntersReleased) return;
+
+        if (event.getFrom().getBlockX() == event.getTo().getBlockX()
+                && event.getFrom().getBlockY() == event.getTo().getBlockY()
+                && event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
+            return;
+        }
+
+        Player player = event.getPlayer();
+
+        if (!plugin.runners.contains(player.getName())) return;
+
+        UUID uuid = player.getUniqueId();
+
+        plugin.lastMove.put(uuid, System.currentTimeMillis());
+
+        // Si se mueve y tenía glow por quieto, se lo quitamos
+        if (plugin.glowing.contains(uuid)) {
+            plugin.runServerCommand("eglow set " + player.getName() + " off");
+            plugin.glowing.remove(uuid);
+        }
     }
 }

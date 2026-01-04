@@ -54,6 +54,9 @@ public class StartHuntersCommand implements CommandExecutor {
         plugin.hunters.clear();
         plugin.runServerCommand("svar reset hunters *");
         plugin.runServerCommand("eglow set * off");
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            plugin.runServerCommand("tab nametag show "+ player.getName() +" -s");
+        }
         Bukkit.broadcastMessage(ChatColor.GOLD + "¡Los cazadores han sido elegidos!");
         for (Player hunter : huntersSeleccionados) {
             Bukkit.broadcastMessage(ChatColor.RED + "▶ " + hunter.getName());
@@ -109,6 +112,7 @@ public class StartHuntersCommand implements CommandExecutor {
                             plugin.runners.add(p.getName());
                             p.setGameMode(GameMode.SURVIVAL);
                             plugin.runServerCommand("svar set hunters &b "+p.getName());
+                            plugin.runServerCommand("tab nametag hide "+ p.getName() +" -s");
                         }
                     }
 

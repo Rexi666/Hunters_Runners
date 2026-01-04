@@ -48,6 +48,9 @@ public class ResetHuntersCommand implements CommandExecutor {
         }
         plugin.runServerCommand("svar reset hunters *");
         plugin.runServerCommand("eglow set * off");
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            plugin.runServerCommand("tab nametag show "+ player.getName() +" -s");
+        }
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setGameMode(GameMode.SURVIVAL);
