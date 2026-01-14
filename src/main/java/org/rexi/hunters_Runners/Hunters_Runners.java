@@ -30,6 +30,13 @@ public final class Hunters_Runners extends JavaPlugin {
     public final Set<UUID> glowing = new HashSet<>();
     public static final long QUIET_TIME_MS = 3000; // 3 segundos
 
+    public Map<String, Integer> HunterKills = new HashMap<>();
+
+    public List<String> RunnerMVP = new ArrayList<>();
+    public Integer RunnerTime = 0;
+
+    public int gameStartTime = 0;
+
     @Override
     public void onEnable() {
         saveDefaultConfig(); // Carga config.yml si no existe
@@ -111,18 +118,63 @@ public final class Hunters_Runners extends JavaPlugin {
         if (winner.equalsIgnoreCase("hunters")) {
             getServer().broadcastMessage(ChatColor.GREEN + "Han ganado los cazadores!");
 
+            String HunterMvp = null;
+            int maxKills = 0;
+
+            for (Map.Entry<String, Integer> entry : HunterKills.entrySet()) {
+                if (entry.getValue() > maxKills) {
+                    maxKills = entry.getValue();
+                    HunterMvp = entry.getKey();
+                }
+            }
+
+            int minutes = RunnerTime / 60;
+            int seconds = RunnerTime % 60;
+
             for (Player player : Bukkit.getOnlinePlayers()) {
                 player.sendTitle(ChatColor.translateAlternateColorCodes('&', "&aHan ganado los cazadores"), "", 10, 40,10);
                 if (hunters.contains(player.getName())) {
                     Bukkit.broadcastMessage(ChatColor.AQUA + "▶ " + player.getName());
                 }
+
+                if (HunterMvp != null) {
+                    Bukkit.broadcastMessage(ChatColor.AQUA + " ");
+                    Bukkit.broadcastMessage(ChatColor.GOLD + "MVP Cazador: " + ChatColor.AQUA + HunterMvp + ChatColor.GOLD + " con " + ChatColor.AQUA + maxKills + ChatColor.GOLD + " eliminaciones!");
+                }
+                if (RunnerMVP != null) {
+                    Bukkit.broadcastMessage(ChatColor.AQUA + " ");
+                    Bukkit.broadcastMessage(ChatColor.GOLD + "MVP Corredores: " + ChatColor.AQUA + String.join(", ", RunnerMVP) + ChatColor.GOLD + " habiendo durado " + ChatColor.AQUA + minutes + "m " + seconds + "s" + ChatColor.GOLD + " tiempo!");
+                }
             }
         } else if (winner.equalsIgnoreCase("runners")) {
             getServer().broadcastMessage(ChatColor.GREEN + "Han ganado los corredores!");
+
+            String HunterMvp = null;
+            int maxKills = 0;
+
+            for (Map.Entry<String, Integer> entry : HunterKills.entrySet()) {
+                if (entry.getValue() > maxKills) {
+                    maxKills = entry.getValue();
+                    HunterMvp = entry.getKey();
+                }
+            }
+
+            int minutes = RunnerTime / 60;
+            int seconds = RunnerTime % 60;
+
             for (Player player : Bukkit.getOnlinePlayers()) {
                 player.sendTitle(ChatColor.translateAlternateColorCodes('&', "&aHan ganado los corredores"), "", 10, 40,10);
                 if (runners.contains(player.getName())) {
                     Bukkit.broadcastMessage(ChatColor.AQUA + "▶ " + player.getName());
+                }
+
+                if (HunterMvp != null) {
+                    Bukkit.broadcastMessage(ChatColor.AQUA + " ");
+                    Bukkit.broadcastMessage(ChatColor.GOLD + "MVP Cazador: " + ChatColor.AQUA + HunterMvp + ChatColor.GOLD + " con " + ChatColor.AQUA + maxKills + ChatColor.GOLD + " eliminaciones!");
+                }
+                if (RunnerMVP != null) {
+                    Bukkit.broadcastMessage(ChatColor.AQUA + " ");
+                    Bukkit.broadcastMessage(ChatColor.GOLD + "MVP Corredores: " + ChatColor.AQUA + String.join(", ", RunnerMVP) + ChatColor.GOLD + " habiendo durado " + ChatColor.AQUA + minutes + "m " + seconds + "s" + ChatColor.GOLD + " tiempo!");
                 }
             }
         } else {
@@ -162,6 +214,10 @@ public final class Hunters_Runners extends JavaPlugin {
             hideBossBar.removeAll();
             hideBossBar = null;
         }
+        HunterKills.clear();
+        RunnerMVP.clear();
+        RunnerTime = 0;
+        gameStartTime = 0;
         runServerCommand("svar reset hunters *");
         runServerCommand("eglow set * off");
         for (Player player : Bukkit.getOnlinePlayers()) {

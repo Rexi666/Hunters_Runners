@@ -64,6 +64,7 @@ public class GameListener implements Listener {
         // Cazador daña a runner: "mata" al runner
         victim.setGameMode(GameMode.SPECTATOR);
         plugin.runnersCount--;
+        plugin.HunterKills.put(attacker.getName(), plugin.HunterKills.getOrDefault(attacker.getName(), 0) + 1);
 
         victim.sendMessage(ChatColor.RED + "¡Has sido cazado!");
         attacker.sendMessage(ChatColor.GREEN + "¡Has cazado a " + victim.getName() + "!");
@@ -75,6 +76,8 @@ public class GameListener implements Listener {
         if (plugin.runnersCount != 0) {
             plugin.getServer().broadcastMessage(ChatColor.AQUA + "Quedan " + plugin.runnersCount + " corredores.");
         } else {
+            plugin.RunnerMVP.add(victim.getName());
+            plugin.RunnerTime = (int) ((System.currentTimeMillis() - plugin.gameStartTime) / 1000);
             plugin.endGame("hunters");
         }
     }

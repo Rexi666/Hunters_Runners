@@ -3,7 +3,6 @@ package org.rexi.hunters_Runners.commands;
 import org.bukkit.*;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -148,6 +147,8 @@ public class StartHuntersCommand implements CommandExecutor {
                                     }
                                 }
 
+                                plugin.gameStartTime = (int) System.currentTimeMillis();
+
                                 plugin.gameBossBar = Bukkit.createBossBar("¡Encuentra a los corredores!", BarColor.RED, BarStyle.SOLID);
                                 for (Player p : Bukkit.getOnlinePlayers()) plugin.gameBossBar.addPlayer(p);
 
@@ -163,6 +164,10 @@ public class StartHuntersCommand implements CommandExecutor {
                                             }
                                             cancel();
                                             Bukkit.broadcastMessage(ChatColor.AQUA + "¡El tiempo se ha acabado!");
+                                            for (String player : plugin.runners) {
+                                                plugin.RunnerMVP.add(player);
+                                            }
+                                            plugin.RunnerTime = (int) ((System.currentTimeMillis() - plugin.gameStartTime) / 1000);
                                             plugin.endGame("runners");
                                             return;
                                         }
